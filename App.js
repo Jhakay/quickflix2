@@ -1,20 +1,31 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import 'react-native-gesture-handler';
+import React from 'react';
+import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
+
+//Screens
+import LaunchScreen from './app/screens/LaunchScreen';
+import EmailSignUpScreen from './app/screens/EmailSignUpScreen';
+import EmailSignIn from './app/screens/EmailSignInScreen';
+import DashboardScreen from './app/screens/DashboardScreen';
+import ProfileSetupScreen from './app/screens/ProfileSetUpScreen';
+import MovieProfilerScreen from './app/screens/MovieProfilerScreen';
+import AddFriendsScreen from './app/screens/AddFriendsScreen';
+
+const Stack = createStackNavigator();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="LaunchScreen">
+        <Stack.Screen name="LaunchScreen" component={LaunchScreen} />
+        <Stack.Screen name="EmailSignUpScreen" component={EmailSignUpScreen} />
+        <Stack.Screen name="EmailSignIn" component={EmailSignIn} /> 
+        <Stack.Screen name="DashboardScreen" component={DashboardScreen} />
+        <Stack.Screen name="ProfileSetupScreen" component={ProfileSetupScreen} />
+        <Stack.Screen name="MovieProfilerScreen" component={MovieProfilerScreen} />
+        <Stack.Screen name="AddFriendsScreen" component={AddFriendsScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

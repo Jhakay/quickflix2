@@ -9,7 +9,7 @@ const windowWidth = Dimensions.get('window').width;
 // Define the moods
 const moods = ['Happy', 'Excited', 'Romantic', 'Inspired', 'Thrilled', 'Scared/Spooky', 'Thoughtful/Reflective', 'Adventurous', 'Nostalgic', 'Solemn', 'Surprise Me!'];
 
-const MoodsMoviesScreen = () => {
+const MoodsMoviesScreen = ( {navigation}) => {
   const [selectedMood, setSelectedMood] = useState({});
   const [movies, setMovies] = useState([]);
   const firestore = getFirestore();
@@ -92,12 +92,14 @@ const MoodsMoviesScreen = () => {
     };
 
     return (
-      <View style={movieItemStyle}>
+      <TouchableOpacity 
+        onPress={() => navigation.navigate('MovieDetailScreen', { movie: item })}
+        style={movieItemStyle}>
         <Image source={{ uri: item.posterPath }} style={movieImageStyle} />
         <Text style={styles.movieTitle}>{item.title}</Text>
         <Text style={styles.movieRating}>Rating: {item.rating}</Text>
-      </View>
-    );  
+      </TouchableOpacity>
+      );  
     };
 
   return (
@@ -115,7 +117,7 @@ const MoodsMoviesScreen = () => {
       </ScrollView>
       <FlatList
         data={movies}
-        renderItem={renderMovieItem}
+        renderItem={(props) => renderMovieItem({ ...props, navigation })}
         keyExtractor={item => item.id}
         numColumns={numColumns}
         key={String(numColumns)}

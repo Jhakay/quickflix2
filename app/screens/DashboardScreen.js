@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {Image} from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-
 
 //Tabs
 import FriendsScreen from '../screens/FriendsScreen';
@@ -14,6 +13,9 @@ import AccountSettings from '../screens/AccountSettingsScreen';
 const Tabs = createBottomTabNavigator();
     
 const DashboardScreen = () => {
+    const [selectedForWheel, setSelectedForWheel] = useState([]);
+    //const [selectedMovies, setSelectedMovies] = useState([]);
+
     return (
         <Tabs.Navigator
         screenOptions={
@@ -44,19 +46,23 @@ const DashboardScreen = () => {
                  />
 
             <Tabs.Screen
-                name="Moods and Movies Screen" 
-                component={MoodsMoviesScreen} 
+                name="Moods and Movies Screen"
+                //children={() => <MoodsMoviesScreen selectedMovies={selectedMovies} setSelectedMovies={setSelectedMovies} />} 
+                //component={MoodsMoviesScreen} 
                 options={{ 
                     title: 'Moods & Movies',
                     tabBarIcon: ({color, size}) => (
                         <MaterialIcons name="theaters" color={color} size={size} />
                     ),
-                }} 
-            />
+                }}
+                >
+                    {() => <MoodsMoviesScreen selectedForWheel={selectedForWheel} setSelectedForWheel={setSelectedForWheel} />}   
+            </Tabs.Screen> 
 
             <Tabs.Screen 
                 name="Wheel" 
-                component={WheelScreen} 
+                //children={() => <WheelScreen selectedMovies={selectedMovies} />}
+                //component={WheelScreen} 
                 options={{ 
                     title: 'Wheel',
                     tabBarIcon: ({color, size}) => (
@@ -69,9 +75,11 @@ const DashboardScreen = () => {
                             }}
                         />
                     ),
-                }} 
-            />
-
+                }}
+                >
+                    {() => <WheelScreen selectedMovies={selectedForWheel} />}
+            </Tabs.Screen> 
+            
             <Tabs.Screen 
                 name="AccountSettings" 
                 component={AccountSettings} 

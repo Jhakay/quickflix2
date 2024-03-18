@@ -20,14 +20,13 @@ const shuffleArray = (array) => {
     return array;
     };
 
-const MovieRoulette = ({ items = ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 6"], radius = 150 }) => {
+const MovieRoulette = ({ radius, selectedMovies }) => {
     const [spinValue] = useState(new Animated.Value(0));
 
-    // Shuffle the colors array to get a random order without repeats
     const shuffledColors = shuffleArray([...colors]);
 
-    //Function to draw a single slice of the wheel
-    const drawSlice = (idx, total) => {
+    //Adjust function to draw each slice based on the number of selectedMovies
+    const drawSlice  = (idx, total) => {
         const angle = (2 * Math.PI)/total;
         const startAngle = idx * angle;
         const endAngle = startAngle + angle;
@@ -53,6 +52,11 @@ const MovieRoulette = ({ items = ["Item 1", "Item 2", "Item 3", "Item 4", "Item 
                 strokeWidth="2"/>;
     };
 
+    //Draw movie title within each slice
+    const drawMovieTitle = (idx, total) => {
+        // Complete logic here
+    };
+
     //Function to animate the spinning of the wheel
     const spinWheel = () => {
         Animated.timing(spinValue, {
@@ -76,16 +80,17 @@ const MovieRoulette = ({ items = ["Item 1", "Item 2", "Item 3", "Item 4", "Item 
 
     return (
         <View style={styles.container}>
-            <Animated.View style={wheelStyles}>
+            <Animated.View style={{ transform: [{ rotate: spinValue.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }] }}> 
                 <Svg height={radius * 2} width={radius * 2} viewBox={`0 0 ${radius * 2} ${radius * 2}`}>
-                    {items.map((item, idx) => drawSlice(idx, items.length))}
+                    {selectedMovies.map((movie, idx) => drawSlice(idx, selectedMovies.length))}
+                    {selectedMovies.map((movie, idx) => drawMovieTitle(idx, selectedMovies.length))}
                 </Svg>
             </Animated.View>
             <View style={styles.clickerContainer}>
             <Svg height="30" width="30" viewBox="0 0 30 30" style={styles.clicker}>
                 <Polygon
                 points="0,15 30,0 30,30"
-                fill="blue" // This is the color of the clicker
+                fill="blue" //Colour of the clicker
                 stroke="black"
                 strokeWidth="1"
                 transform="rotate(15 15 15)"

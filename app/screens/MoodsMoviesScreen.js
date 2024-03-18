@@ -9,13 +9,15 @@ const windowWidth = Dimensions.get('window').width;
 // Define the moods
 const moods = ['Happy', 'Excited', 'Romantic', 'Inspired', 'Thrilled', 'Scared/Spooky', 'Thoughtful/Reflective', 'Adventurous', 'Nostalgic', 'Solemn', 'Surprise Me!'];
 
-const MoodsMoviesScreen = ( {navigation}) => {
+const MoodsMoviesScreen = ( {selectedForWheel, setSelectedForWheel, navigation}) => {
   const [selectedMood, setSelectedMood] = useState({});
   const [movies, setMovies] = useState([]);
   const firestore = getFirestore();
   const auth = getAuth();
   const user = auth.currentUser;
   const [numColumns, setNumColumns] = useState(2); //For grid layout
+
+  //const [selectedForWheel, setSelectedForWheel] = useState([]);
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -86,18 +88,41 @@ const MoodsMoviesScreen = ( {navigation}) => {
     const marginLeft = index % numColumns !== 0 ? 15 : 0;
     const movieItemStyle = [styles.movieItem, { marginLeft }];
 
+    // Check if the movie is included in the selectedForWheel
+    const isMovieSelected = selectedForWheel.some((selectedMovie) => selectedMovie.id === item.id);
+
     const movieImageStyle = {
       ...styles.movieImage,
       height: (windowWidth / numColumns) * 1.5, // Dynamically calculate the height
     };
 
+    const handleAddToWheel = (movie) => {
+      setSelectedForWheel((currentSelected) => {
+        const isAlreadySelected = currentSelected.some(selectedMovie => selectedMovie.id === movie.id); 
+        if (isAlreadySelected) {
+          //If it's already selected, remove it from the array
+          return currentSelected.filter(selectedMovie => selectedMovie.id !== movie.id);  
+        } else {
+          //If it's not already selected, add it to the array
+          return [...currentSelected, movie];
+        }
+        
+      });
+    };
+
     return (
       <TouchableOpacity 
         onPress={() => navigation.navigate('MovieDetailScreen', { movie: item })}
-        style={movieItemStyle}>
+        style={movieItemStyle}
+        >
         <Image source={{ uri: item.posterPath }} style={movieImageStyle} />
         <Text style={styles.movieTitle}>{item.title}</Text>
         <Text style={styles.movieRating}>Rating: {item.rating}</Text>
+        <TouchableOpacity style={styles.addToWheel} onPress={() => handleAddToWheel(item)}>
+          <Text style={styles.addToWheelText}>
+            {isMovieSelected ? '✓ Added to Wheel' : 'Add to Wheel'}
+          </Text>
+        </TouchableOpacity>
       </TouchableOpacity>
       );  
     };
@@ -128,33 +153,53 @@ const MoodsMoviesScreen = ( {navigation}) => {
 };
 
 const styles = StyleSheet.create({
+  addToWheel: {
+    position: 'absolute',
+    bottom: 10,
+    right: 5,
+    padding: 10,
+  },
+
+  addToWheelText: {
+    fontSize: 12,
+    color: '#000',
+    textAlign: 'right',
+  },
+  
   container: {
     flex: 1,
     paddingTop: 50, 
   },
+
   greetingText: {
     fontSize: 24,
     fontWeight: 'bold',
     padding: 20,
   },
+
   moodsContainer: {
     flexDirection: 'row',
   },
+
   moodButton: {
     padding: 10,
     marginHorizontal: 5,
     backgroundColor: '#EAEAEA',
     borderRadius: 20,
   },
+
   moodButtonSelected: {
     backgroundColor: '#D0D0D0',
   },
+
   moodButtonText: {
     color: 'black',
   },
+
   movieList: {
     marginTop: 20,
   },
+
   movieItem: {
     flex: 1,
     margin: 5,
@@ -164,20 +209,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     elevation: 3,
   },
+
   movieImage: {
     width: '100%',
     //height: windowWidth / numColumns * 1.5, 
     resizeMode: 'cover',
   },
+
   movieTitle: {
     margin: 5,
     fontWeight: 'bold',
   },
+
   movieRating: {
     marginBottom: 10,
     marginLeft: 5,
     marginRight: 5,
-  },  
+  },
+    
 });
 
 export default MoodsMoviesScreen;

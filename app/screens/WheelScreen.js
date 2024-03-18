@@ -3,11 +3,13 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import MovieRoulette from '../components/MovieRoulette';
 
-const WheelScreen = () => {
+const WheelScreen = ({ selectedMovies }) => {
+
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Wheel</Text>
-      <MovieRoulette radius={150} segments={6} />
+      {/* Pass the segments prop to MovieRoulette */}
+      <MovieRoulette radius={150} selectedMovies={selectedMovies} />
     </View>
   );
 };

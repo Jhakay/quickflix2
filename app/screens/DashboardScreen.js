@@ -14,7 +14,6 @@ const Tabs = createBottomTabNavigator();
     
 const DashboardScreen = () => {
     const [selectedForWheel, setSelectedForWheel] = useState([]);
-    //const [selectedMovies, setSelectedMovies] = useState([]);
 
     return (
         <Tabs.Navigator
@@ -23,7 +22,7 @@ const DashboardScreen = () => {
             tabBarActiveTintColor: 'black',
             tabBarInactiveTintColor: 'grey',
             tabBarStyle: {
-                backgroundColor: '#ADD8E6',
+                backgroundColor: '#F7F2F8',
             },
             tabBarLabelStyle: {
                 fontSize: 15,
@@ -46,9 +45,7 @@ const DashboardScreen = () => {
                  />
 
             <Tabs.Screen
-                name="Moods and Movies Screen"
-                //children={() => <MoodsMoviesScreen selectedMovies={selectedMovies} setSelectedMovies={setSelectedMovies} />} 
-                //component={MoodsMoviesScreen} 
+                name="Moods and Movies Screen" 
                 options={{ 
                     title: 'Moods & Movies',
                     tabBarIcon: ({color, size}) => (
@@ -56,13 +53,11 @@ const DashboardScreen = () => {
                     ),
                 }}
                 >
-                    {() => <MoodsMoviesScreen selectedForWheel={selectedForWheel} setSelectedForWheel={setSelectedForWheel} />}   
+                    {props => <MoodsMoviesScreen {...props} selectedForWheel={selectedForWheel} setSelectedForWheel={setSelectedForWheel} />}  
             </Tabs.Screen> 
 
             <Tabs.Screen 
                 name="Wheel" 
-                //children={() => <WheelScreen selectedMovies={selectedMovies} />}
-                //component={WheelScreen} 
                 options={{ 
                     title: 'Wheel',
                     tabBarIcon: ({color, size}) => (

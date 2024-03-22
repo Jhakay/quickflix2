@@ -28,7 +28,7 @@ export default function App() {
         <Stack.Screen name="ProfileSetupScreen" component={ProfileSetupScreen} />
         <Stack.Screen name="MovieProfilerScreen" component={MovieProfilerScreen} />
         <Stack.Screen name="AddFriendsScreen" component={AddFriendsScreen} />
-        <Stack.Screen name="MovieDetailScreen" component={MovieDetailScreen} />
+        <Stack.Screen name="MovieDetailScreen" component={MovieDetailScreen} options={{ presentation: 'modal' }}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

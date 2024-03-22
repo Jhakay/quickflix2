@@ -7,8 +7,6 @@ import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { db } from '../utils/firebaseConfig';
 
 const ProfileSetupScreen = ({route, navigation}) => {
-  //const navigation = useNavigation();
-
   // Retrieve the userId from the navigation parameters
   const userId = route.params?.userId;
 
@@ -17,8 +15,21 @@ const ProfileSetupScreen = ({route, navigation}) => {
   //Call getStyles() with current windows dimensions
   const styles = getStyles(window);
 
-  //Retrieve user's first name from Firestore - to test connection to database  
   const [firstName, setFirstName] = useState('');
+  const [profileCompletion, setProfileCompletion] = useState(0); 
+  const [screenName, setScreenName] = useState('');
+  const [movieProfilerCompleted, setMovieProfilerCompleted] = useState(false);
+
+  // Function to navigate to MovieProfilerScreen and pass the callback
+  const goToMovieProfiler = () => {
+    navigation.navigate('MovieProfilerScreen', {
+      onSaveRatings: () => {
+        setMovieProfilerCompleted(true);
+        updateProfileCompletion();
+      }
+    });
+  };
+
   useEffect(() => {
     console.log("Current userId:", userId);
     const retrieveFirstName = async () => {
@@ -44,43 +55,28 @@ const ProfileSetupScreen = ({route, navigation}) => {
     };
       
     retrieveFirstName();
-    }, [userId]); //Depend on userId to re-run the effect when it changes
+    }, [userId]); 
 
-    const [profileCompletion, setProfileCompletion] = useState(0); 
-    const [screenName, setScreenName] = useState('');
-    //Variable for adding profile picture
-    //Variable for adding a friend
-    //Variable for completing the movie profiler
+    useEffect(() => {
+      // Recalculate profile completion on dependency changes
+      updateProfileCompletion();
+    }, [screenName, movieProfilerCompleted]);
 
-    const updateCompletion = () => {
-      let completionIncrement = 0;
-      //Possible logic for calculating profile completion
-      if (screenName !== '') completionIncrement += 0.25;
-      
-      // Add other conditions for different sections here
-      setProfileCompletion(completionIncrement);
-    };
+  //Update profile completion as requirements are met (Profile picture added, Screen name, Movie profile completed, at least 1 friend added)
+  const updateProfileCompletion = () => {
+    let completionIncrement = 0;
+    if (screenName !== '') completionIncrement += 0.25;
+    if (movieProfilerCompleted) completionIncrement += 0.25;
+    // Activate these as they become live
+    // if (profilePictureAdded) completionIncrement += 0.25;
+    // if (friendsAdded) completionIncrement += 0.25;
+    setProfileCompletion(Math.min(completionIncrement, 1));
+   };
 
-    // Call updateCompletion() whenever relevant state changes to recalculate profile completion
-    // Example: useEffect(() => { updateCompletion(); }, [screenName, profilePicture, movieProfile, friends]);
-
-    //Update profile completion as requirements are met (Profile picture added, Screen name, Movie profile completed, at least 1 friend added)
-    const updateProfileCompletion = (value) => {
-      setScreenName(value);
-      let completionIncrement = 0;
-      if (value !== '') completionIncrement += 0.25;
-      // Activate these as they become live
-      // if (profilePictureAdded) completionIncrement += 0.25;
-      // if (movieProfileCompleted) completionIncrement += 0.25;
-      // if (friendsAdded) completionIncrement += 0.25;
-      
-      setProfileCompletion(completionIncrement);
-     };
-
-    //Handler
-    const handleSaveProfile = () => {
-      navigation.navigate('DashboardScreen')
-    };
+   //Handler
+   const handleSaveProfile = () => {
+    navigation.navigate('DashboardScreen')
+  };
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
@@ -97,10 +93,11 @@ const ProfileSetupScreen = ({route, navigation}) => {
             </View>
             
             <View style={styles.progressContainer}>
-                <Text style={styles.text}> Profile completion: {Math.round(profileCompletion * 100)}%</Text>
+                <Text style={styles.text}> Profile completion: {Math.round(profileCompletion*100)}%</Text>
                 <ProgressBar 
                   style={styles.progressBar}
-                  progress={profileCompletion} 
+                  //progress={profileCompletion}
+                  progress={0.5} 
                   color="#6200ee"
                   //Find out why the progress bar is no longer visible   
                 />
@@ -126,7 +123,7 @@ const ProfileSetupScreen = ({route, navigation}) => {
                     value={screenName}
                     onChangeText={(value) => {
                       setScreenName(value);
-                      updateCompletion();
+                      updateProfileCompletion();
                     }}
                 />
                 
@@ -173,7 +170,7 @@ const getStyles = (window) => {
     
     container: {
         flex: 1,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: '#F7F2F8',
         paddingTop: window.height * 0.05,
         alignItems: 'center',
     },
@@ -213,12 +210,13 @@ const getStyles = (window) => {
     },
 
     localButton: {
-      backgroundColor: '#e0e0e0',
+      backgroundColor: '#A9A9A9',
       padding: 15,
-      borderRadius: 25,
+      borderRadius: responsiveSize(1.5),
       marginBottom: responsiveSize(3),
-      width: '88%',
+      width: responsiveSize(88),
       alignItems: 'center',
+      justifyContent: 'center',
     },
 
     localButtonText: {
@@ -269,12 +267,13 @@ const getStyles = (window) => {
       width: '100%',
       paddingHorizontal: '6%',
       alignItems: 'center',
+      justifyContent: 'centre',
       marginBottom: responsiveSize(4),
+      height: '5%'
     },
 
     text: {
         fontSize: responsiveSize(2.5),
-        //fontWeight: '',
         color: '#9095A1FF',
         marginBottom: responsiveSize(1.5),
     },

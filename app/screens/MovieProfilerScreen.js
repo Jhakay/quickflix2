@@ -8,9 +8,9 @@ import { getFirestore, collection, doc, writeBatch, setDoc } from 'firebase/fire
 import { getAuth } from 'firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 
-const MovieProfilerScreen = () => {
+const MovieProfilerScreen = ({ navigation, route }) => {
   
-  const navigation = useNavigation();
+  //const navigation = useNavigation();
   
   //Initialise with an empty array
     const [movies, setMovies] = useState([]);
@@ -55,7 +55,7 @@ const MovieProfilerScreen = () => {
           allMovies = shuffleArray(allMovies);
           
           //Slice the first 30
-          const moviesWithDetails = allMovies.slice(0, 30).map(movie => ({
+          const moviesWithDetails = allMovies.slice(0, 50).map(movie => ({
             id: String(movie.id),
                   title: movie.title,
                   posterPath: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
@@ -97,6 +97,8 @@ const handleSaveRatings = useCallback(async () => {
   }
 
   const ratingsRef = collection(firestore, 'users', user.uid, 'ratings');
+  
+  //Start new batch
   const batch = writeBatch(firestore);
 
   movieRatings.forEach((movie) => {
@@ -107,8 +109,8 @@ const handleSaveRatings = useCallback(async () => {
       posterPath: movie.posterPath,
       rating: movie.rating,
       genreIds: movie.genre_ids,
-      // Add other movie properties you want to save here
     });
+    console.log(movie);
   });
 
   try {
@@ -116,7 +118,14 @@ const handleSaveRatings = useCallback(async () => {
     Alert.alert('Success', 'Your movie ratings have been saved.', [
       {
         text: "OK",
-        onPress: () => navigation.goBack() }, // Navigate back after saving
+        onPress: () => {
+          //Retrieve callback from navigation parameters
+          if (route.params?.onSaveRatings) {
+            route.params.onSaveRatings();
+          }
+          navigation.goBack(); // Navigate back after saving
+        },
+      },
     ]);
   } catch (error) {
     console.error('Error saving movie ratings:', error);
@@ -153,7 +162,7 @@ const styles = getStyles(window);
         <StatusBar barStyle="dark-content" />
         <Text style={commonStyles.heading}>Movie Profiler</Text>
         <View style={styles.line} />
-        <Text style={styles.subHeaderText}>Rate these movies</Text>
+        <Text style={styles.subHeaderText}>Rate the movies you have seen!</Text>
             <FlatList
             data={movieRatings}
             renderItem={renderMovieItem}
@@ -190,7 +199,7 @@ const getStyles = (window) => {
         
         containerWithStatusBar: {
             flex: 1,
-            backgroundColor: '#FFFFFF',
+            backgroundColor: '#F7F2F8',
             paddingTop: StatusBar.currentHeight,
             alignItems: 'center',
         },

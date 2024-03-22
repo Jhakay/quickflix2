@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from 'react-native';
 const AccountSettings = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Friends</Text>
+      <Text style={styles.text}>Account Details</Text>
     </View>
   );
 };

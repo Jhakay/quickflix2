@@ -25,6 +25,18 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ac314f60-1af7-4f4a-8b52-438733b7b730"
+      }
+    },
+    "owner": "keishavkb",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/ac314f60-1af7-4f4a-8b52-438733b7b730"
     }
   }
 }

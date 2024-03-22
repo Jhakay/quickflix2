@@ -5,6 +5,8 @@ const FriendsScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Friends</Text>
+      <Text>Add friends who also use the app!</Text>
+      <Text>We are working on it!</Text>
     </View>
   );
 };

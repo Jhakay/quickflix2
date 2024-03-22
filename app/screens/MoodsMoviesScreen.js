@@ -4,10 +4,19 @@ import { getFirestore, collection, query, where, getDocs } from 'firebase/firest
 import { getAuth } from 'firebase/auth';
 import moodGenreMapping from '../components/moodGenreMapping';
 
-//const numColumns = 2; //For grid layout
 const windowWidth = Dimensions.get('window').width;
+
+// shuffleArray function
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+  }
+  return array;
+}
+
 // Define the moods
-const moods = ['Happy', 'Excited', 'Romantic', 'Inspired', 'Thrilled', 'Scared/Spooky', 'Thoughtful/Reflective', 'Adventurous', 'Nostalgic', 'Solemn', 'Surprise Me!'];
+const moods = ['Happy', 'Excited', 'Romantic', 'Inspired', 'Thrilled', 'Scared/Spooky', 'Thoughtful/Reflective', 'Adventurous', 'Nostalgic', 'Solemn'];
 
 const MoodsMoviesScreen = ( {selectedForWheel, setSelectedForWheel, navigation}) => {
   const [selectedMood, setSelectedMood] = useState({});
@@ -16,8 +25,7 @@ const MoodsMoviesScreen = ( {selectedForWheel, setSelectedForWheel, navigation})
   const auth = getAuth();
   const user = auth.currentUser;
   const [numColumns, setNumColumns] = useState(2); //For grid layout
-
-  //const [selectedForWheel, setSelectedForWheel] = useState([]);
+  const [error, setError] = useState(' ');
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -27,52 +35,35 @@ const MoodsMoviesScreen = ( {selectedForWheel, setSelectedForWheel, navigation})
       }
 
       try {
+        // Simplify the initial query to fetch all movies for debugging
+        const allMoviesQuery = query(collection(firestore, 'users', user.uid, 'ratings'));
+        const querySnapshot = await getDocs(allMoviesQuery);
+        let fetchedMovies = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            title: doc.data().title,
+            posterPath: doc.data().posterPath,
+            rating: doc.data().rating,
+        }));
 
-        let genreIdsForSelectedMoods = [];
-        Object.keys(selectedMood).forEach(mood => {
-          if (selectedMood[mood]) {
-            genreIdsForSelectedMoods = genreIdsForSelectedMoods.concat(moodGenreMapping[mood] || []);
-          }
-        });
-
-        //Firestore query that fetches movies with genre_ids that overlap with genreIdsForSelectedMoods
-        const ratingsRef = collection(firestore, 'users', user.uid, 'ratings');
-        const queryConstraints = [];
-
-        if (genreIdsForSelectedMoods.length > 0) {
-          queryConstraints.push(where('genre_ids', 'array-contains-any', genreIdsForSelectedMoods));
-          queryConstraints.push(where('rating', '>=', 3));
-        }
-
-        //Implement logic for 'Surprise Me' here
-        if (selectedMood['Surprise Me!']) {
-          // Implement logic for "Surprise Me!" here
-        }
-
-        const finalQuery = queryConstraints.length > 0
-          ? query(ratingsRef, ...queryConstraints)
-          : query(ratingsRef);
-
-        const querySnapshot = await getDocs(finalQuery);
-
-        const fetchedMovies = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          title: doc.data().title,
-          posterPath: doc.data().posterPath,
-          rating: doc.data().rating,
-        }))
-        .slice(0, 12);
-        ;
-        
+        // Shuffle and slice to simulate a random selection of movies
+        fetchedMovies = shuffleArray(fetchedMovies).slice(0, 12);
+        console.log(fetchedMovies); // Debug: Check the fetched movies
         setMovies(fetchedMovies);
-      } catch (error) {
-        console.error("Error fetching movies: ", error);
-        Alert.alert("Error", "Failed to fetch movies");
-      }
-      };
+
+        //DEBUG
+        console.log('Fetched movies:', fetchedMovies);
+        setError(' ');
+        setMovies(fetchedMovies);
+
+    } catch (error) {
+        console.error("Error fetching movies:", error);
+        setError(error.message);
+        Alert.alert("Error", "Failed to fetch movies: " + error.message);
+    }
+};    
 
     fetchMovies();
-  }, [user, selectedMood]);
+  }, [user]);
 
   const handleSelectMood = mood => {
     setSelectedMood(prevState => { 
@@ -85,6 +76,7 @@ const MoodsMoviesScreen = ( {selectedForWheel, setSelectedForWheel, navigation})
   };
 
   const renderMovieItem = ({ item, index }) => {
+    //const navigation = useNavigation();
     const marginLeft = index % numColumns !== 0 ? 15 : 0;
     const movieItemStyle = [styles.movieItem, { marginLeft }];
 
@@ -129,7 +121,10 @@ const MoodsMoviesScreen = ( {selectedForWheel, setSelectedForWheel, navigation})
 
   return (
     <View style={styles.container}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.moodsContainer}>
+      {/* Error message display */}
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+      <View style={styles.moodsContainer}>
         {moods.map(mood => (
           <TouchableOpacity
             key={mood}
@@ -139,7 +134,7 @@ const MoodsMoviesScreen = ( {selectedForWheel, setSelectedForWheel, navigation})
             <Text style={styles.moodButtonText}>{mood}</Text>
           </TouchableOpacity>
         ))}
-      </ScrollView>
+      </View>
       <FlatList
         data={movies}
         renderItem={(props) => renderMovieItem({ ...props, navigation })}
@@ -171,6 +166,11 @@ const styles = StyleSheet.create({
     paddingTop: 50, 
   },
 
+  errorText: {
+    color: 'red',
+    textAlign: 'center',
+  },
+
   greetingText: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -178,7 +178,9 @@ const styles = StyleSheet.create({
   },
 
   moodsContainer: {
-    flexDirection: 'row',
+    flexDirection: 'row', 
+    flexWrap: 'wrap', 
+    justifyContent: 'center', 
   },
 
   moodButton: {
